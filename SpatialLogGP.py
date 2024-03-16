@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # for development
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
 class GriddedLogGaussianProcess3D:
     def __init__(self,lscales,grid_size,grid_extent,sigma2,kernel="SE",time_sat = 10800, nugget=0.01, ):
 
@@ -83,7 +84,7 @@ class GriddedLogGaussianProcess3D:
         pred_field = k_sb @ inv_kbb @ d_d + mu
         resulting_cov = self.cov - k_sb @ inv_kbb @ k_sb.T
 
-        ## Update to log, TODO: check this!
+        ## Update to log
 
         pred_field = np.exp(pred_field+0.5*np.diag(resulting_cov))
         resulting_cov = np.square(pred_field)*(np.exp(resulting_cov)-1)

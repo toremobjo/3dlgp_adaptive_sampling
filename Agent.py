@@ -70,12 +70,20 @@ class AUV:
         for i in range(no_vs):
             self.other_vs.append([-100000, -100000])
 
+        # Extent in meters of grid to be explored in x, y and z dimensions
         self.grid_extent = [3000, 3000, 50]
+        # Number of cells in grid in x, y and z dimensions
         self.grid_size = [15, 15, 10]
+        # De-correlation lengths 
         self.lscales = [600,600,3]
+        # Variance across the field
         self.sigma2 = 2.3
+        # Nugget effect within one cell
         self.nugg = 0.7
-        self.timesat = 3000
+        # De-correlation time
+        self.timesat = 6000
+
+
         self.nplaces = self.grid_size[0]*self.grid_size[1]*self.grid_size[2]
 
         self.divelength = 2 * self.grid_extent[2] / np.tan(self.maxpitch) + 50.0
@@ -268,7 +276,7 @@ t = AUV(x_init=0,y_init=0,vno=3,no_vs=4)
 auvs = [h,f,r,t]
 
 
-run_iterations = 3600*2
+run_iterations = 3600
 x = []
 y = []
 z = []
@@ -326,18 +334,13 @@ fig = px.line_3d(df, x="x", y="y", z="z", color='auv')
 fig.show()
 
 ss = np.array(auvs[0].scorel,dtype=object)
-print(ss.T[(4,)])
-print(ss.T[(0,)])
-
-print(len(ss.T[(4,)]))
-print(len(ss.T[(0,)]))
-
-plt.plot(ss.T[(4,)],ss.T[(0,)],label = "Total")
-#plt.plot(ss.T[(4,)],ss.T[(1,)],label="predictive mean")
-#plt.plot(ss.T[(4,)],ss.T[(2,)],label="unc")
-#plt.plot(ss.T[(4,)],ss.T[(3,)],label="avoidance")
+plt.plot(ss.T[(4,)],ss.T[(0,)],label = "Total score ")
+plt.plot(ss.T[(4,)],ss.T[(1,)],label= "Predictive mean")
+plt.plot(ss.T[(4,)],ss.T[(2,)],label= "Uncertainty ")
+plt.plot(ss.T[(4,)],ss.T[(3,)],label= "Avoidance")
 plt.legend()
-plt.savefig("test.png")
+plt.suptitle("Adaptive waypoint score for vehicle #0")
+plt.show()
 
 
 grid_extent = [3000, 3000, 50]
@@ -380,8 +383,7 @@ for ii in range(nv):
     plt.plot(times,rmse)
     with open('log2.npy', 'wb') as f:
         np.save(f, ss)
-grid = np.array(grid)
-plt.show()
+
 for auv in auvs:
     pf, pc = auv.gp.evaluate(auv.df)
     fig = go.Figure(data=[go.Volume(
